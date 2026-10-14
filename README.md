@@ -2,13 +2,6 @@
 
 <div align="center">
 
-[![Python 3.10+](https://img.shields.io/badge/python-3.10+-3776AB.svg?logo=python&logoColor=white)](https://www.python.org/)
-[![Chrome MV3](https://img.shields.io/badge/chrome%20extension-Manifest%20V3-4285F4.svg?logo=googlechrome&logoColor=white)](https://developer.chrome.com/docs/extensions/mv3/intro/)
-[![Model](https://img.shields.io/badge/model-NLLB--200%20(Fine--Tuned)-FF6F00.svg?logo=huggingface&logoColor=white)](https://huggingface.co/facebook/nllb-200-distilled-600M)
-[![Inference](https://img.shields.io/badge/inference-CTranslate2%20INT8-8A2BE2.svg)](https://opennmt.net/CTranslate2/)
-[![BLEU Score](https://img.shields.io/badge/validation%20BLEU-34.20-2ea44f.svg)](https://en.wikipedia.org/wiki/BLEU)
-[![Privacy](https://img.shields.io/badge/privacy-100%25%20Offline%20First-success.svg)](https://github.com/kancharlanavyatha/manhwa-translator)
-[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
 
 <p align="center">
   <b>Read Korean webtoons in real-time with zero cloud fees.</b><br>
@@ -213,7 +206,7 @@ The test suite validates:
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```
 manhwa-translator/
