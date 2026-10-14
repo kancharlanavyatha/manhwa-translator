@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Webtoon Translator</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <!-- Header -->
+    <header class="popup-header">
+      <div class="brand">
+        <div class="brand-icon">⚡</div>
+        <div class="brand-text">
+          <h1>Webtoon Translator</h1>
+          <span class="version-tag">v1.0.0</span>
+        </div>
+      </div>
+      <label class="switch" title="Toggle translation on/off">
+        <input type="checkbox" id="toggle-enabled" checked>
+        <span class="slider"></span>
+      </label>
+    </header>
+
+    <!-- Server Connection Badge -->
+    <div class="status-card" id="status-card">
+      <div class="status-indicator">
+        <span class="dot" id="status-dot"></span>
+        <span class="status-text" id="status-text">Checking backend...</span>
+      </div>
+      <span class="latency" id="status-latency">-- ms</span>
+    </div>
+
+    <!-- Main Settings Form -->
+    <main class="settings-form">
+      <!-- Target Language -->
+      <div class="form-group">
+        <label for="target-lang">Target Language</label>
+        <select id="target-lang" class="custom-select">
+          <option value="en">English (English)</option>
+          <option value="es">Spanish (Español)</option>
+          <option value="fr">French (Français)</option>
+          <option value="de">German (Deutsch)</option>
+          <option value="ja">Japanese (日本語)</option>
+          <option value="zh">Chinese (中文)</option>
+        </select>
+      </div>
+
+      <!-- Render Mode -->
+      <div class="form-group">
+        <label>Rendering Mode</label>
+        <div class="segmented-control">
+          <button type="button" class="segment-btn active" data-mode="swap">
+            <span>🖼️ Image Swap</span>
+          </button>
+          <button type="button" class="segment-btn" data-mode="overlay">
+            <span>💬 Interactive</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Language Learner Mode -->
+      <div class="toggle-row">
+        <div class="toggle-meta">
+          <span class="toggle-title">Learner Hover Tooltip</span>
+          <span class="toggle-desc">Show Hangul, romanization & vocab</span>
+        </div>
+        <label class="switch-sm">
+          <input type="checkbox" id="toggle-hover-vocab" checked>
+          <span class="slider-sm"></span>
+        </label>
+      </div>
+
+      <!-- Font Scale Slider -->
+      <div class="form-group">
+        <div class="slider-header">
+          <label for="font-scale">Font Scale</label>
+          <span id="font-scale-value">100%</span>
+        </div>
+        <input type="range" id="font-scale" min="80" max="140" step="5" value="100" class="range-slider">
+      </div>
+    </main>
+
+    <!-- Footer Quick Actions -->
+    <footer class="popup-footer">
+      <button id="btn-open-options" class="footer-btn">
+        <span>⚙️ Glossary & Settings</span>
+      </button>
+      <button id="btn-clear-cache" class="footer-btn secondary">
+        <span>🗑️ Clear Cache</span>
+      </button>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

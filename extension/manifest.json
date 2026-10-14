@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "name": "Webtoon Translator - Real-time Manhwa & Comic Reader",
+  "version": "1.0.0",
+  "description": "Seamless real-time translation of Korean webtoons and comics into English directly in your browser as you scroll.",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "declarativeNetRequest"
+  ],
+  "host_permissions": [
+    "*://*.naver.com/*",
+    "*://*.kakao.com/*",
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background/service_worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.naver.com/*",
+        "*://*.kakao.com/*",
+        "<all_urls>"
+      ],
+      "js": [
+        "content/content_script.js"
+      ],
+      "css": [
+        "content/content_style.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_title": "Webtoon Translator"
+  },
+  "options_ui": {
+    "page": "options/options.html",
+    "open_in_tab": true
+  }
+}

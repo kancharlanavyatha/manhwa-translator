@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Webtoon Translator - Settings & Glossary Manager</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="options-container">
+    <header class="options-header">
+      <div class="brand">
+        <div class="logo">⚡</div>
+        <div>
+          <h1>Webtoon Translator Configuration</h1>
+          <p class="subtitle">Customize server connections, translation parameters, and series glossaries</p>
+        </div>
+      </div>
+    </header>
+
+    <div class="options-grid">
+      <!-- Left Column: Core Server & Reading Settings -->
+      <section class="card">
+        <h2>Connection & Engine</h2>
+        <form id="settings-form">
+          <div class="form-group">
+            <label for="server-url">Backend Server URL</label>
+            <input type="url" id="server-url" value="http://127.0.0.1:8000" class="input-text" required>
+            <span class="field-hint">Default local server: http://127.0.0.1:8000 (or remote GPU server)</span>
+          </div>
+
+          <div class="form-group">
+            <label for="prefetch-ahead">Prefetch Scroll Ahead Panels</label>
+            <input type="number" id="prefetch-ahead" min="1" max="10" value="3" class="input-text">
+            <span class="field-hint">Number of upcoming panels to translate before they enter view</span>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save Settings</button>
+            <span id="save-status" class="status-msg"></span>
+          </div>
+        </form>
+      </section>
+
+      <!-- Right Column: Series Glossary Manager -->
+      <section class="card card-wide">
+        <div class="glossary-header">
+          <div>
+            <h2>Series Glossary Manager</h2>
+            <p class="subtitle">Maintain consistent character names, skills, and honorifics</p>
+          </div>
+          <button id="btn-seed-presets" class="btn btn-secondary btn-sm">Load Manhwa Presets</button>
+        </div>
+
+        <!-- Add Term Form -->
+        <form id="add-term-form" class="add-term-grid">
+          <input type="text" id="term-series" placeholder="Series ID (e.g. default)" value="default" class="input-text" required>
+          <input type="text" id="term-korean" placeholder="Korean (e.g. 성진우)" class="input-text" required>
+          <input type="text" id="term-english" placeholder="English (e.g. Sung Jin-woo)" class="input-text" required>
+          <select id="term-category" class="input-text">
+            <option value="character">Character</option>
+            <option value="honorific">Honorific</option>
+            <option value="skill">Skill / Magic</option>
+            <option value="location">Location</option>
+          </select>
+          <button type="submit" class="btn btn-primary">Add Term</button>
+        </form>
+
+        <!-- Terms Table -->
+        <div class="table-container">
+          <table class="glossary-table">
+            <thead>
+              <tr>
+                <th>Series</th>
+                <th>Korean Term</th>
+                <th>English Translation</th>
+                <th>Category</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="glossary-tbody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script src="options.js"></script>
+</body>
+</html>

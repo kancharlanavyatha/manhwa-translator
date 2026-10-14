@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>네이버 웹툰 - Solo Leveling (나 혼자만 레벨업) 1화</title>
+  <style>
+    :root {
+      --bg-dark: #0f1015;
+      --card-dark: #191b24;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --text: #f3f4f6;
+      --text-muted: #9ca3af;
+      --naver-green: #00dc64;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Malgun Gothic", sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Top Navigation mimicking Naver Webtoon */
+    .naver-nav {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(18, 19, 26, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-naver {
+      color: var(--naver-green);
+      font-weight: 900;
+      font-size: 18px;
+      letter-spacing: -0.5px;
+    }
+
+    .chapter-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .chapter-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-left: 6px;
+    }
+
+    /* Demo Helper Banner */
+    .demo-banner {
+      background: linear-gradient(90deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
+      border-bottom: 1px solid rgba(99, 102, 241, 0.3);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+    }
+
+    .demo-banner-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .demo-btn {
+      background: var(--accent);
+      color: #ffffff;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 12px;
+      transition: background 0.15s ease;
+    }
+
+    .demo-btn:hover {
+      background: var(--accent-hover);
+    }
+
+    .demo-btn.secondary {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Webtoon Reader Container */
+    .reader-wrapper {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #000000;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.8);
+      min-height: 100vh;
+    }
+
+    /* Matches standard Naver comic view area */
+    #comic_view_area, .wt_viewer {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .comic-panel-container {
+      position: relative;
+      width: 100%;
+      line-height: 0;
+    }
+
+    .comic-panel-img {
+      width: 100%;
+      height: auto;
+      display: block;
+      transition: opacity 0.3s ease;
+    }
+
+    /* Reader Footer */
+    .reader-footer {
+      max-width: 800px;
+      margin: 40px auto;
+      text-align: center;
+      padding: 30px 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    .chapter-nav-btns {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .nav-pill {
+      background: var(--card-dark);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      padding: 10px 24px;
+      border-radius: 999px;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Naver Webtoon Navigation Bar -->
+  <nav class="naver-nav">
+    <div class="nav-left">
+      <span class="brand-naver">WEBTOON</span>
+      <div>
+        <span class="chapter-title">나 혼자만 레벨업 (Solo Leveling)</span>
+        <span class="chapter-sub">제 1화: 다시 시작된 운명</span>
+      </div>
+    </div>
+    <div class="nav-right">
+      <span style="font-size: 12px; color: #9ca3af;">화요웹툰</span>
+    </div>
+  </nav>
+
+  <!-- Interactive Test Banner -->
+  <aside class="demo-banner">
+    <div>
+      <strong>Webtoon Translator Demo</strong> — Test live translation without installing the extension, or load the Chrome extension to test auto-scrolling!
+    </div>
+    <div class="demo-banner-actions">
+      <input type="file" id="btn-upload-file" accept="image/*" style="display: none;">
+      <button id="btn-demo-upload" class="demo-btn secondary">📁 Upload Custom Panel</button>
+      <button id="btn-demo-translate" class="demo-btn">⚡ Run API Translation</button>
+      <button id="btn-demo-toggle" class="demo-btn secondary" disabled>Switch to Original</button>
+      <span id="demo-status" style="color: #a5b4fc; font-weight: 500;"></span>
+    </div>
+  </aside>
+
+  <!-- Reader Area: Standard Naver Webtoon DOM Structure -->
+  <main class="reader-wrapper">
+    <div id="comic_view_area" class="wt_viewer">
+      <!-- Panel 1 -->
+      <div class="comic-panel-container">
+        <img
+          id="panel-img-1"
+          class="comic-panel-img"
+          src="assets/panel_1.jpg"
+          alt="Webtoon Panel 1"
+          data-panel-index="0"
+        >
+      </div>
+
+      <!-- Panel 2 -->
+      <div class="comic-panel-container">
+        <img
+          id="panel-img-2"
+          class="comic-panel-img"
+          src="assets/panel_2.jpg"
+          alt="Webtoon Panel 2"
+          data-panel-index="1"
+        >
+      </div>
+    </div>
+
+    <!-- Chapter Footer Navigation -->
+    <footer class="reader-footer">
+      <p>— 1화 끝 (End of Episode 1) —</p>
+      <div class="chapter-nav-btns">
+        <a href="#" class="nav-pill">목록 (List)</a>
+        <a href="#" class="nav-pill" style="background: var(--accent);">다음화 (Next Chapter ➔)</a>
+      </div>
+    </footer>
+  </main>
+
+  <!-- In-page Direct Testing Script (works standalone or with extension) -->
+  <script>
+    (function() {
+      const btnTranslate = document.getElementById("btn-demo-translate");
+      const btnToggle = document.getElementById("btn-demo-toggle");
+      const statusEl = document.getElementById("demo-status");
+
+      const images = [
+        { img: document.getElementById("panel-img-1"), original: "assets/panel_1.jpg", translated: null },
+        { img: document.getElementById("panel-img-2"), original: "assets/panel_2.jpg", translated: null }
+      ];
+
+      let isTranslated = false;
+
+      // Converts image file to base64
+      async function imagePathToBase64(path) {
+        const resp = await fetch(path);
+        const blob = await resp.blob();
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      }
+
+      btnTranslate.addEventListener("click", async () => {
+        btnTranslate.disabled = true;
+        btnTranslate.textContent = "Translating...";
+        statusEl.textContent = "Calling backend on http://127.0.0.1:8000...";
+
+        try {
+          for (let i = 0; i < images.length; i++) {
+            const item = images[i];
+            const b64 = await imagePathToBase64(item.original);
+
+            const apiUrl = window.location.origin.startsWith("http") ? "/api/translate" : "http://127.0.0.1:8000/api/translate";
+            const apiResp = await fetch(apiUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                image_base64: b64,
+                panel_index: i,
+                chapter_id: "solo_leveling_1",
+                target_lang: "en",
+                mode: "both"
+              })
+            });
+
+            if (!apiResp.ok) throw new Error(`Server returned ${apiResp.status}`);
+            const data = await apiResp.json();
+            item.translated = data.translated_image_base64;
+            item.img.src = item.translated;
+          }
+
+          isTranslated = true;
+          btnToggle.disabled = false;
+          btnToggle.textContent = "Show Original Korean";
+          btnTranslate.textContent = "✔ Translation Complete";
+          statusEl.textContent = "Success! Panels rendered in English.";
+        } catch (err) {
+          statusEl.textContent = `Error: ${err.message}. Make sure the backend server is running!`;
+          btnTranslate.disabled = false;
+          btnTranslate.textContent = "⚡ Retry Translation";
+        }
+      });
+
+      btnToggle.addEventListener("click", () => {
+        isTranslated = !isTranslated;
+        images.forEach(item => {
+          if (item.translated) {
+            item.img.src = isTranslated ? item.translated : item.original;
+          }
+        });
+        btnToggle.textContent = isTranslated ? "Show Original Korean" : "Show Translated English";
+      });
+
+      // Custom file upload testing
+      const btnUpload = document.getElementById("btn-demo-upload");
+      const fileInput = document.getElementById("btn-upload-file");
+
+      btnUpload.addEventListener("click", () => fileInput.click());
+
+      fileInput.addEventListener("change", async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        statusEl.textContent = `Loading ${file.name}...`;
+        const reader = new FileReader();
+        reader.onload = async () => {
+          const customB64 = reader.result;
+          images[0].original = customB64;
+          images[0].img.src = customB64;
+          images[0].translated = null;
+
+          statusEl.textContent = "Translating custom panel...";
+          btnUpload.disabled = true;
+
+          try {
+            const apiUrl = window.location.origin.startsWith("http") ? "/api/translate" : "http://127.0.0.1:8000/api/translate";
+            const apiResp = await fetch(apiUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                image_base64: customB64,
+                panel_index: 0,
+                chapter_id: "custom_upload",
+                target_lang: "en",
+                mode: "both"
+              })
+            });
+
+            if (!apiResp.ok) throw new Error(`Server returned ${apiResp.status}`);
+            const data = await apiResp.json();
+            images[0].translated = data.translated_image_base64;
+            images[0].img.src = images[0].translated;
+
+            isTranslated = true;
+            btnToggle.disabled = false;
+            btnToggle.textContent = "Show Original Korean";
+            statusEl.textContent = `✔ Translated custom panel (${data.processing_time_ms}ms, ${data.bubbles.length} bubbles)`;
+          } catch (err) {
+            statusEl.textContent = `Error: ${err.message}`;
+          } finally {
+            btnUpload.disabled = false;
+          }
+        };
+        reader.readAsDataURL(file);
+      });
+    })();
+  </script>
+</body>
+</html>

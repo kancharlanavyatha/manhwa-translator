@@ -1,0 +1,202 @@
+/* Webtoon Translator - Content Styles */
+
+/* Subtle loading pulse on translating panels */
+.wt-translating-pulse {
+  transition: filter 0.3s ease;
+  filter: brightness(0.96) contrast(1.02);
+}
+
+.wt-translated-fade {
+  animation: wtFadeIn 0.4s ease-out;
+}
+
+@keyframes wtFadeIn {
+  from {
+    opacity: 0.85;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Floating Reader Control Widget */
+#wt-floating-widget {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 999999;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  user-select: none;
+}
+
+.wt-widget-pill {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(18, 18, 24, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  padding: 8px 16px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+  color: #f3f4f6;
+  font-size: 13px;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+}
+
+.wt-widget-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px -5px rgba(0, 0, 0, 0.6);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+.wt-widget-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.wt-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #10b981; /* Green status indicator */
+  box-shadow: 0 0 8px #10b981;
+}
+
+.wt-widget-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wt-widget-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f3f4f6;
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.wt-widget-btn:hover {
+  background: #6366f1;
+  border-color: #6366f1;
+  color: #ffffff;
+}
+
+/* Interactive Bubble Overlays */
+.wt-bubble-overlay-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.wt-speech-bubble-box {
+  position: absolute;
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.94);
+  color: #111827;
+  border-radius: 50%;
+  padding: 6px 10px;
+  box-sizing: border-box;
+  font-family: "Comic Sans MS", "Comic Relief", cursive, sans-serif;
+  font-weight: bold;
+  font-size: 13px;
+  line-height: 1.25;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.wt-speech-bubble-box:hover {
+  transform: scale(1.03);
+  box-shadow: 0 6px 18px rgba(99, 102, 241, 0.35);
+  border: 1.5px solid #6366f1;
+}
+
+.wt-bubble-text {
+  max-width: 90%;
+  max-height: 90%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Language Learner Hover Card */
+.wt-learner-card {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  background: rgba(17, 24, 39, 0.96);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: #ffffff;
+  width: 240px;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s ease, visibility 0.2s;
+  z-index: 1000;
+  text-align: left;
+}
+
+.wt-speech-bubble-box:hover .wt-learner-card {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+.wt-learner-hangul {
+  font-size: 14px;
+  font-weight: 700;
+  color: #38bdf8;
+  margin-bottom: 2px;
+}
+
+.wt-learner-roman {
+  font-size: 11px;
+  font-style: italic;
+  color: #94a3b8;
+  margin-bottom: 6px;
+}
+
+.wt-learner-english {
+  font-size: 12px;
+  color: #f1f5f9;
+  line-height: 1.35;
+  margin-bottom: 8px;
+}
+
+.wt-learner-vocab-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  padding-top: 6px;
+}
+
+.wt-learner-vocab-pill {
+  font-size: 10px;
+  background: rgba(99, 102, 241, 0.25);
+  color: #c7d2fe;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid rgba(99, 102, 241, 0.4);
+}

@@ -1,0 +1,57 @@
+# Python virtual environment
+.venv/
+venv/
+env/
+ENV/
+
+# Python cache & bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Large Model Weights & Binary Checkpoints (>100MB blocked by GitHub)
+*.bin
+*.onnx
+*.pt
+*.pth
+*.safetensors
+*.zip
+*.tar.gz
+server/models/nmt/
+server/models/nmt_webtoon/
+server/models/ocr/*.onnx
+training/output_checkpoints/
+training/final_manhwa_translator/
+
+# Datasets (re-generated on-demand via prepare_data.py)
+training/train.json
+training/val.json
+*.parquet
+
+# Runtime Cache & User Data
+data/cache/
+data/glossary.json
+*.log
+
+# Environment variables & secrets (CRITICAL for security)
+.env
+.env.*
+*.key
+*.pem
+secrets.json
+
+# Test scratch outputs & debug profiles
+scratch/
+.cache/
+.chrome_debug_profile/
+scratch_crop.png
+test_naver_panel*.jpg
+translated_*.png
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

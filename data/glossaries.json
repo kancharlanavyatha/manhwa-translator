@@ -1,0 +1,33 @@
+{
+  "default": {
+    "형": {
+      "series_id": "default",
+      "source_term": "형",
+      "target_term": "Hyung",
+      "category": "honorific",
+      "notes": "Older brother / respected male elder"
+    },
+    "오빠": {
+      "series_id": "default",
+      "source_term": "오빠",
+      "target_term": "Oppa",
+      "category": "honorific",
+      "notes": "Female to older male"
+    },
+    "누나": {
+      "series_id": "default",
+      "source_term": "누나",
+      "target_term": "Noona",
+      "category": "honorific",
+      "notes": "Male to older female"
+    },
+    "선배": {
+      "series_id": "default",
+      "source_term": "선배",
+      "target_term": "Sunbae",
+      "category": "honorific",
+      "notes": "Senior colleague/student"
+    }
+  },
+  "solo_leveling_test": {}
+}
