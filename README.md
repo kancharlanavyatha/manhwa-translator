@@ -1,4 +1,4 @@
-# ⚡ Webtoon Translator
+# Manhwa Translator
 
 <div align="center">
 
@@ -27,7 +27,7 @@
 
 ---
 
-## 📖 Overview
+##  Overview
 
 Korean webtoon platforms such as **Naver Webtoon** and **Kakao Webtoon** deliver vertical comic strips where speech bubbles, sound effects, and narration are baked directly into image pixels. Traditional browser translation tools (such as Google Translate) cannot translate text embedded inside images or HTML5 canvas elements.
 
@@ -37,20 +37,20 @@ Korean webtoon platforms such as **Naver Webtoon** and **Kakao Webtoon** deliver
 
 ---
 
-## 🚀 Key Features
+##  Key Features
 
-* **⚡ Real-Time Scroll Translation**: Uses an asynchronous `IntersectionObserver` with lookahead buffers to process and translate comic panels ahead of the reader for a seamless, lag-free reading experience.
-* **🧠 Custom Fine-Tuned Neural Translator**: Powered by a fine-tuned `facebook/nllb-200-distilled-600M` model trained on 50,000 Korean-English conversational manhwa dialogue pairs (**34.20 BLEU Score**).
-* **🔒 100% Offline & Private**: Runs entirely locally on CPU via CTranslate2 INT8 quantization. No API keys, cloud subscriptions, or external network requests are required.
-* **🎨 Adaptive Background Inpainting**: Erases Korean Hangul using color-variance thresholding and contour-aware Telea inpainting, preserving speech bubble borders, gradients, and background manga illustrations.
-* **📐 Dynamic Binary-Search Typesetting**: Automatically calculates optimal font sizing, hyphenation, and line wrapping to balance English text perfectly within irregular speech bubble contours.
-* **📖 Interactive Language Learner Mode**: Hover over any speech bubble to inspect the original Korean Hangul, phonetic Revised Romanization, and vocabulary breakdowns.
-* **⚡ SHA-256 In-Memory & Disk Caching**: Deduplicates panels using content hashing, delivering 0ms instantaneous loading when re-reading or scrolling backwards.
-* **📚 Per-Series Glossary & Honorific Preservation**: Enforces custom character names (*성진우* → *Sung Jin-woo*) and context-appropriate Korean honorifics (*Hyung*, *Oppa*, *Sunbae*, *Noona*).
+* ** Real-Time Scroll Translation**: Uses an asynchronous `IntersectionObserver` with lookahead buffers to process and translate comic panels ahead of the reader for a seamless, lag-free reading experience.
+* ** Custom Fine-Tuned Neural Translator**: Powered by a fine-tuned `facebook/nllb-200-distilled-600M` model trained on 50,000 Korean-English conversational manhwa dialogue pairs (**34.20 BLEU Score**).
+* ** 100% Offline & Private**: Runs entirely locally on CPU via CTranslate2 INT8 quantization. No API keys, cloud subscriptions, or external network requests are required.
+* ** Adaptive Background Inpainting**: Erases Korean Hangul using color-variance thresholding and contour-aware Telea inpainting, preserving speech bubble borders, gradients, and background manga illustrations.
+* ** Dynamic Binary-Search Typesetting**: Automatically calculates optimal font sizing, hyphenation, and line wrapping to balance English text perfectly within irregular speech bubble contours.
+* ** Interactive Language Learner Mode**: Hover over any speech bubble to inspect the original Korean Hangul, phonetic Revised Romanization, and vocabulary breakdowns.
+* ** SHA-256 In-Memory & Disk Caching**: Deduplicates panels using content hashing, delivering 0ms instantaneous loading when re-reading or scrolling backwards.
+* ** Per-Series Glossary & Honorific Preservation**: Enforces custom character names (*성진우* → *Sung Jin-woo*) and context-appropriate Korean honorifics (*Hyung*, *Oppa*, *Sunbae*, *Noona*).
 
 ---
 
-## 🏛️ System Architecture
+##  System Architecture
 
 ```
 ┌────────────────────────────────────────────────────────────────────────┐
@@ -77,7 +77,7 @@ Korean webtoon platforms such as **Naver Webtoon** and **Kakao Webtoon** deliver
 
 ---
 
-## 🛠️ Tech Stack
+##  Tech Stack
 
 | Component | Technology | Description |
 | :--- | :--- | :--- |
@@ -91,7 +91,7 @@ Korean webtoon platforms such as **Naver Webtoon** and **Kakao Webtoon** deliver
 
 ---
 
-## 📊 Model & Benchmarks
+##  Model & Benchmarks
 
 The translation pipeline uses a specialized fine-tuned version of Meta's **NLLB-200-distilled-600M**:
 
@@ -101,7 +101,7 @@ The translation pipeline uses a specialized fine-tuned version of Meta's **NLLB-
 
 ---
 
-## 🚀 Quickstart Guide
+##  Quickstart Guide
 
 ### Prerequisites
 * **Python 3.10+**
@@ -155,7 +155,7 @@ The server will initialize models and start listening on `http://127.0.0.1:8000`
 
 ---
 
-## ⚙️ Configuration & Environment Variables
+##  Configuration & Environment Variables
 
 ### Do I need to configure API keys?
 **No configuration is required!**  
@@ -194,7 +194,7 @@ OPENAI_MODEL=gpt-4o-mini
 
 ---
 
-## 🧪 Running the Automated Test Suite
+##  Running the Automated Test Suite
 
 Execute the comprehensive unit and integration test suite:
 
@@ -262,19 +262,6 @@ manhwa-translator/
 
 ---
 
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome!  
-Feel free to check out the [issues page](https://github.com/kancharlanavyatha/manhwa-translator/issues) if you want to contribute.
-
-1. Fork the Project.
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`).
-3. Commit your Changes (`git commit -m 'feat: Add some AmazingFeature'`).
-4. Push to the Branch (`git push origin feature/AmazingFeature`).
-5. Open a Pull Request.
-
----
-
-## 📜 License
+##  License
 
 Distributed under the **MIT License**. See `LICENSE` for more information.
