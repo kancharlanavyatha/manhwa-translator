@@ -8,14 +8,6 @@
   An end-to-end, privacy-focused Chrome Extension and local computer-vision backend that detects speech bubbles, extracts Hangul via OCR, translates dialogue with a custom fine-tuned neural model, inpaints backgrounds, and re-typesets English dialogue with natural comic typography as you scroll.
 </p>
 
-[Key Features](#-key-features) •
-[Architecture](#-system-architecture) •
-[Tech Stack](#-tech-stack) •
-[Model & Benchmarks](#-model--benchmarks) •
-[Quickstart](#-quickstart-guide) •
-[Configuration](#-configuration--environment-variables) •
-[Project Structure](#-project-structure)
-
 </div>
 
 ---
