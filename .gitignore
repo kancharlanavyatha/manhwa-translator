@@ -38,6 +38,7 @@ data/glossary.json
 # Environment variables & secrets (CRITICAL for security)
 .env
 .env.*
+!.env.example
 *.key
 *.pem
 secrets.json
