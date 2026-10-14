@@ -3,11 +3,6 @@
 <div align="center">
 
 
-<p align="center">
-  <b>Read Korean webtoons in real-time with zero cloud fees.</b><br>
-  An end-to-end, privacy-focused Chrome Extension and local computer-vision backend that detects speech bubbles, extracts Hangul via OCR, translates dialogue with a custom fine-tuned neural model, inpaints backgrounds, and re-typesets English dialogue with natural comic typography as you scroll.
-</p>
-
 </div>
 
 ---
@@ -140,11 +135,6 @@ The server will initialize models and start listening on `http://127.0.0.1:8000`
 
 ---
 
-##  Configuration & Environment Variables
-
-### Do I need to configure API keys?
-**No configuration is required!**  
-By default, the engine runs **100% offline and free** using the locally fine-tuned **NLLB-200 CTranslate2 INT8 model** (`server/models/nmt_webtoon`). You do not need any third-party API keys or cloud subscriptions.
 
 ### Optional Cloud LLM Fallback (Development & Comparison)
 If you wish to benchmark or compare local model output against commercial cloud LLMs (such as Google Gemini or OpenAI GPT-4o-mini), copy `.env.example` to `.env` and configure credentials:
