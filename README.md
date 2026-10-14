@@ -17,16 +17,16 @@ Korean webtoon platforms such as **Naver Webtoon** and **Kakao Webtoon** deliver
 
 ---
 
-##  Key Features
+## Key Features
 
-* ** Real-Time Scroll Translation**: Uses an asynchronous `IntersectionObserver` with lookahead buffers to process and translate comic panels ahead of the reader for a seamless, lag-free reading experience.
-* ** Custom Fine-Tuned Neural Translator**: Powered by a fine-tuned `facebook/nllb-200-distilled-600M` model trained on 50,000 Korean-English conversational manhwa dialogue pairs (**34.20 BLEU Score**).
-* ** 100% Offline & Private**: Runs entirely locally on CPU via CTranslate2 INT8 quantization. No API keys, cloud subscriptions, or external network requests are required.
-* ** Adaptive Background Inpainting**: Erases Korean Hangul using color-variance thresholding and contour-aware Telea inpainting, preserving speech bubble borders, gradients, and background manga illustrations.
-* ** Dynamic Binary-Search Typesetting**: Automatically calculates optimal font sizing, hyphenation, and line wrapping to balance English text perfectly within irregular speech bubble contours.
-* ** Interactive Language Learner Mode**: Hover over any speech bubble to inspect the original Korean Hangul, phonetic Revised Romanization, and vocabulary breakdowns.
-* ** SHA-256 In-Memory & Disk Caching**: Deduplicates panels using content hashing, delivering 0ms instantaneous loading when re-reading or scrolling backwards.
-* ** Per-Series Glossary & Honorific Preservation**: Enforces custom character names (*성진우* → *Sung Jin-woo*) and context-appropriate Korean honorifics (*Hyung*, *Oppa*, *Sunbae*, *Noona*).
+- <b>Lookahead Prefetching</b>: Uses an asynchronous IntersectionObserver to detect and translate comic panels ahead of the reader, preventing scroll lag.
+- <b>Fine-Tuned Translation Model</b>: Powered by Meta NLLB-200 (600M) fine-tuned on 50,000 Korean-English manhwa dialogue pairs (34.20 BLEU score).
+- <b>Offline CPU Inference</b>: Runs locally via CTranslate2 INT8 quantization, requiring no external API keys or cloud subscriptions.
+- <b>Contour-Preserving Inpainting</b>: Removes original Hangul using adaptive color masking and Telea inpainting while preserving speech bubble borders and artwork.
+- <b>Dynamic Typesetting</b>: Computes optimal font size, line breaks, and padding via binary search to fit translated text inside irregular speech bubble shapes.
+- <b>Interactive Language Mode</b>: Displays original Hangul, phonetic romanization, and vocabulary breakdowns when hovering over speech bubbles.
+- <b>SHA-256 Deduplication</b>: Hashes panel images to serve repeated frames from memory or disk cache with 0ms latency.
+- <b>Glossary & Honorific Consistency</b>: Enforces series-specific character names and preserves Korean honorifics (Hyung, Oppa, Sunbae).
 
 ---
 
