@@ -62,13 +62,12 @@ The server binds to `http://127.0.0.1:8000`. You can verify health by visiting `
 1. Open your browser and navigate to `chrome://extensions` (or `edge://extensions`).
 2. Enable **Developer mode** (toggle in top-right corner).
 3. Click **Load unpacked**.
-4. Select the `extension/` directory from this project folder (`d:\webtoon translator\extension`).
-5. The **Webtoon Translator** extension icon (⚡) will appear in your browser toolbar!
+4. Select the `extension/` directory from this project folder
+5. The **Webtoon Translator** extension icon (⚡) will appear in your browser toolbar.
 
 ### 3. Test on the Demo Viewer
 
 Open the built-in standalone reader in your browser:
-- Open [`demo/index.html`](file:///d:/webtoon%20translator/demo/index.html) directly in Chrome.
 - You will see high-resolution Korean manhwa panels.
 - With the extension active, scroll down to see the panels automatically translate into English!
 - Hover over any speech balloon to view the Hangul and romanization learning card.
