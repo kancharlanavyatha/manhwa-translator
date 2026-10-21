@@ -15,6 +15,11 @@ import httpx
 
 from server.config import settings
 from server.schemas import BubbleData, BoundingBox, VocabWord
+from server.pipeline.context import (
+    ManhwaEntityNormalizer,
+    DiscoursePacker,
+    chapter_context,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -235,16 +240,20 @@ class ContextualTranslator(BaseTranslator):
         bubbles: List[Tuple[BoundingBox, str]],
         target_lang: str = "en",
         glossary: Optional[Dict[str, str]] = None,
+        chapter_id: str = "default_chapter",
+        panel_index: int = 0,
     ) -> List[BubbleData]:
         if not bubbles:
             return []
 
         active_glossary = glossary or {}
 
-        # 1. Dedicated Local NMT
+        # 1. Dedicated Local NMT (with Context & Discourse Intelligence)
         if self.provider == "local_nmt" and self._local_nmt.is_available():
             try:
-                return self._translate_with_local_nmt(bubbles, target_lang, active_glossary)
+                return self._translate_with_local_nmt(
+                    bubbles, target_lang, active_glossary, chapter_id, panel_index
+                )
             except Exception as exc:
                 logger.error("Local NMT error: %s. Falling back to heuristic.", exc)
 
@@ -270,41 +279,111 @@ class ContextualTranslator(BaseTranslator):
         bubbles: List[Tuple[BoundingBox, str]],
         target_lang: str,
         glossary: Dict[str, str],
+        chapter_id: str = "default_chapter",
+        panel_index: int = 0,
     ) -> List[BubbleData]:
-        """Translate dialogue bubbles using local CTranslate2 NMT model."""
+        """
+        Translate dialogue bubbles using local CTranslate2 NMT model
+        with discourse packaging, named entity protection, and rolling narrative context.
+        """
         import re
 
-        ko_lines = [text for _, text in bubbles]
-        en_translations = self._local_nmt.translate_batch(ko_lines)
+        if not bubbles:
+            return []
 
-        results: List[BubbleData] = []
-        for idx, ((box, ko_text), en_text) in enumerate(zip(bubbles, en_translations)):
-            english = en_text
-            # Apply glossary overrides
+        # 1. Group co-located split sentences (e.g. bubble 1: "그 녀석은..." bubble 2: "절대로 이길 수 없어.")
+        packed_groups: List[List[Tuple[int, Tuple[BoundingBox, str]]]] = []
+        i = 0
+        while i < len(bubbles):
+            group = [(i, bubbles[i])]
+            while (
+                i + 1 < len(bubbles)
+                and DiscoursePacker.should_merge(
+                    bubbles[i][0], bubbles[i][1],
+                    bubbles[i + 1][0], bubbles[i + 1][1]
+                )
+            ):
+                i += 1
+                group.append((i, bubbles[i]))
+            packed_groups.append(group)
+            i += 1
+
+        # 2. Get rolling chapter context for pronoun/subject resolution
+        recent_turns = chapter_context.get_recent_context(chapter_id, limit=2)
+
+        # 3. Formulate normalized queries for translation
+        texts_to_translate: List[str] = []
+        group_metadata = []
+
+        for g_idx, group in enumerate(packed_groups):
+            ko_combined = " ".join(b[1][1].strip() for b in group)
+            norm_ko, _ = ManhwaEntityNormalizer.pre_process(ko_combined)
+
+            # If this is the first speech in the panel and previous chapter history exists,
+            # condition with the last Korean line to resolve omitted subjects/pronouns
+            if g_idx == 0 and recent_turns:
+                prior_ko = recent_turns[-1].korean
+                query = f"{prior_ko} {norm_ko}"
+                texts_to_translate.append(query)
+                group_metadata.append((group, norm_ko, prior_ko))
+            else:
+                texts_to_translate.append(norm_ko)
+                group_metadata.append((group, norm_ko, None))
+
+        # 4. Neural Machine Translation
+        raw_translations = self._local_nmt.translate_batch(texts_to_translate)
+
+        # 5. Post-processing, alignment, and chapter memory update
+        results: List[Optional[BubbleData]] = [None] * len(bubbles)
+
+        for (group, norm_ko, prior_ko), raw_en in zip(group_metadata, raw_translations):
+            trans = raw_en.strip()
+
+            # If translation included prior sentence context, extract the target sentence
+            if prior_ko and len(trans.split()) > 3:
+                parts = re.split(r'(?<=[\.\?!])\s+', trans, maxsplit=1)
+                if len(parts) > 1 and len(parts[1].strip()) > 0:
+                    trans = parts[1].strip()
+
+            # Apply series glossary substitutions
             for src, tgt in glossary.items():
-                english = english.replace(src, tgt)
+                trans = trans.replace(src, tgt)
 
-            # Strip any remaining unrendered Hangul characters from English output
-            english = re.sub(r'[\uac00-\ud7a3]+', '', english).strip()
-            if not english:
-                english = "..."
+            # Manhwa entity post-processing (honorifics, names, punctuation)
+            orig_combined_ko = " ".join(b[1][1] for b in group)
+            trans = ManhwaEntityNormalizer.post_process(trans, orig_combined_ko)
 
-            roman = romanize_korean(ko_text)
-            vocab = self._extract_learner_vocab(ko_text)
+            # Strip any remaining unrendered Hangul glyphs
+            trans = re.sub(r'[\uac00-\ud7a3]+', '', trans).strip()
+            if not trans:
+                trans = "..."
 
-            results.append(
-                BubbleData(
-                    id=f"bubble_{idx}",
+            # Distribute translation across group bubbles
+            if len(group) == 1:
+                bubble_translations = [trans]
+            else:
+                orig_ko_texts = [b[1][1] for b in group]
+                bubble_translations = DiscoursePacker.split_english_across_bubbles(trans, orig_ko_texts)
+
+            # Build BubbleData objects
+            for (orig_idx, (box, ko_text)), en_text in zip(group, bubble_translations):
+                roman = romanize_korean(ko_text)
+                vocab = self._extract_learner_vocab(ko_text)
+                bubble_obj = BubbleData(
+                    id=f"bubble_{orig_idx}",
                     box=box,
                     korean_text=ko_text,
-                    english_text=english,
+                    english_text=en_text,
                     romanization=roman,
-                    reading_order=idx,
+                    reading_order=orig_idx,
                     vocab_breakdown=vocab,
                     is_speech_bubble=True,
                 )
-            )
-        return results
+                results[orig_idx] = bubble_obj
+                # Add to chapter narrative context buffer
+                chapter_context.add_turn(chapter_id, ko_text, en_text, panel_index)
+
+        return [b for b in results if b is not None]
 
     async def _translate_with_gemini(
         self,

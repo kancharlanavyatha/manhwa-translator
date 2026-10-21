@@ -23,28 +23,52 @@
 
   let isTranslatedView = true;
   const enqueuedImages = new WeakSet();
+  const failedImages = new WeakSet();
   const panelRegistry = new Map();
 
   // -------------------------------------------------------------
-  // 1. Comic Image Detection
+  // 1. Comic Image Detection & Validation
   // -------------------------------------------------------------
+  function isValidComicPanel(img) {
+    if (!img) return false;
+
+    const src = (img.currentSrc || img.src || img.dataset?.src || img.dataset?.original || "").trim();
+    if (!src) return false;
+
+    const lower = src.toLowerCase();
+    // Exclude SVGs, 1x1 gifs, tracking beacons, spinners, icons, and UI chrome
+    if (lower.startsWith("data:image/svg") || lower.startsWith("data:image/gif")) return false;
+    if (
+      lower.includes("blank.gif") ||
+      lower.includes("pixel") ||
+      lower.includes("spinner") ||
+      lower.includes("loading") ||
+      lower.includes("icon") ||
+      lower.includes("logo") ||
+      lower.includes("avatar") ||
+      lower.includes("banner") ||
+      lower.includes("btn") ||
+      lower.includes("thumb")
+    ) {
+      return false;
+    }
+
+    // Exclude elements that are clearly too small to be comic panels
+    const w = img.naturalWidth || img.width || img.clientWidth;
+    const h = img.naturalHeight || img.height || img.clientHeight;
+    if (w > 0 && w < 180) return false;
+    if (h > 0 && h < 150) return false;
+
+    return true;
+  }
+
   function findComicImages() {
     // Priority 1: Standard webtoon container selectors (Naver Webtoon desktop & mobile, Kakao, Demo)
     const containerImgs = document.querySelectorAll(
       "#comic_view_area img, .wt_viewer img, .comic-panel-img, div[class*='comic'] img, div[class*='viewer'] img, div[id*='comic'] img, div[class*='Viewer'] img, div[id*='view'] img, .toon_view_area img, div[class*='Episode'] img"
     );
-    if (containerImgs.length > 0) {
-      return Array.from(containerImgs);
-    }
-
-    // Priority 2: Generic fallback (tall or wide comic strips)
-    return Array.from(document.querySelectorAll("img")).filter((img) => {
-      if (img.width > 0 && img.width < 320) return false;
-      if (img.height > 0 && img.height < 250) return false;
-      const src = (img.src || img.dataset?.src || "").toLowerCase();
-      if (src.includes("icon") || src.includes("logo") || src.includes("avatar") || src.includes("banner")) return false;
-      return true;
-    });
+    const pool = containerImgs.length > 0 ? Array.from(containerImgs) : Array.from(document.querySelectorAll("img"));
+    return pool.filter(isValidComicPanel);
   }
 
   // -------------------------------------------------------------
@@ -54,7 +78,8 @@
   let isQueuePumping = false;
 
   function queuePanelImage(img) {
-    if (enqueuedImages.has(img) || panelRegistry.has(img)) return;
+    if (enqueuedImages.has(img) || panelRegistry.has(img) || failedImages.has(img)) return;
+    if (!isValidComicPanel(img)) return;
     enqueuedImages.add(img);
     processingQueue.push(img);
     pumpQueue();
@@ -68,6 +93,7 @@
       await processPanelImage(img);
     } catch (err) {
       console.warn("[Webtoon Translator] Panel processing skipped:", err);
+      failedImages.add(img);
     } finally {
       isQueuePumping = false;
       // 150ms breather between panels to keep the browser 100% smooth and responsive
@@ -119,8 +145,8 @@
   // 3. High-Performance Base64 Extraction
   // -------------------------------------------------------------
   async function getImageBase64(img) {
-    const src = img.currentSrc || img.src || img.dataset?.src || img.dataset?.original;
-    if (src && src.startsWith("data:")) {
+    const src = (img.currentSrc || img.src || img.dataset?.src || img.dataset?.original || "").trim();
+    if (src && (src.startsWith("data:image/jpeg") || src.startsWith("data:image/png") || src.startsWith("data:image/webp"))) {
       return src;
     }
 
@@ -137,7 +163,7 @@
     try {
       const w = img.naturalWidth || img.width;
       const h = img.naturalHeight || img.height;
-      if (w > 0 && h > 0) {
+      if (w > 100 && h > 100) {
         const canvas = document.createElement("canvas");
         canvas.width = w;
         canvas.height = h;
@@ -185,28 +211,47 @@
   // 4. Translation Request & In-Place Rendering
   // -------------------------------------------------------------
   async function processPanelImage(img) {
-    if (panelRegistry.has(img)) return;
+    if (panelRegistry.has(img) || failedImages.has(img)) return;
 
-    const originalSrc = img.currentSrc || img.src || img.dataset?.src || img.dataset?.original;
-    if (!originalSrc) return;
+    let originalSrc = (img.currentSrc || img.src || img.dataset?.src || img.dataset?.original || "").trim();
+    if (!originalSrc || !isValidComicPanel(img)) {
+      failedImages.add(img);
+      return;
+    }
+
+    // Normalize protocol-relative or relative URLs
+    if (originalSrc.startsWith("//")) {
+      originalSrc = window.location.protocol + originalSrc;
+    } else if (originalSrc.startsWith("/") && !originalSrc.startsWith("data:")) {
+      originalSrc = new URL(originalSrc, window.location.origin).href;
+    }
 
     markImageLoading(img, true);
 
     try {
       const panelIdx = panelRegistry.size;
+      const chapterId = window.location.pathname || "default_chapter";
       const payload = {
         panelIndex: panelIdx,
+        chapterId: chapterId,
         targetLang: CONFIG.targetLang,
         mode: "both",
       };
 
       if (originalSrc.startsWith("http://") || originalSrc.startsWith("https://")) {
         payload.imageUrl = originalSrc;
+      } else if (originalSrc.startsWith("data:image/jpeg") || originalSrc.startsWith("data:image/png") || originalSrc.startsWith("data:image/webp")) {
+        payload.imageBase64 = originalSrc;
       } else {
         payload.imageBase64 = await getImageBase64(img);
       }
 
-      // 2. Request translation (Service worker first for CORS/mixed-content bypass, with direct fallback)
+      if (!payload.imageUrl && (!payload.imageBase64 || payload.imageBase64.length < 100)) {
+        failedImages.add(img);
+        return;
+      }
+
+      // Request translation (Service worker first for CORS/mixed-content bypass, with direct fallback)
       let data = null;
       const swResp = await sendMessageAsync({
         type: "TRANSLATE_IMAGE",
@@ -218,6 +263,7 @@
       } else {
         const bodyObj = {
           panel_index: panelIdx,
+          chapter_id: chapterId,
           target_lang: CONFIG.targetLang,
           mode: "both",
         };
@@ -238,7 +284,7 @@
       }
       const { translated_image_base64, bubbles, cached, processing_time_ms } = data;
 
-      // 3. Register panel and render
+      // Register panel and render
       panelRegistry.set(img, {
         originalSrc: originalSrc,
         translatedSrc: translated_image_base64 || originalSrc,
@@ -255,7 +301,7 @@
       );
     } catch (err) {
       console.warn("[Webtoon Translator] Panel translation skipped:", err.message);
-      enqueuedImages.delete(img);
+      failedImages.add(img);
     } finally {
       markImageLoading(img, false);
       updateWidgetStats();

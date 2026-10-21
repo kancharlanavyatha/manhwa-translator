@@ -191,7 +191,7 @@ class HangulOCR(BaseOCR):
                     v_dist = ly - cy2
                     min_w = min(lw, cx2 - cx1)
                     h_overlap = max(0, min(lx + lw, cx2) - max(lx, cx1))
-                    if -lh <= v_dist <= (lh * 2.2) and (h_overlap > (min_w * 0.20) or abs(line["center_x"] - cluster["center_x"]) < (min_w * 0.9)):
+                    if -lh <= v_dist <= (lh * 1.4) and (h_overlap > (min_w * 0.20) or abs(line["center_x"] - cluster["center_x"]) < (min_w * 0.9)):
                         cluster["lines"].append(line)
                         cluster["bbox"] = (min(cx1, lx), min(cy1, ly), max(cx2, lx + lw), max(cy2, ly + lh))
                         cluster["center_x"] = (cluster["bbox"][0] + cluster["bbox"][2]) / 2.0

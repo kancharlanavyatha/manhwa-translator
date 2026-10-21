@@ -102,3 +102,38 @@ def test_clear_cache_endpoint(client: FlaskClient):
     resp = client.post("/api/cache/clear")
     assert resp.status_code == 200
     assert resp.get_json()["status"] == "cache cleared"
+
+
+def test_malformed_base64_returns_graceful_200(client: FlaskClient):
+    """Corrupted base64 or unpadded strings must not crash the server or stall client with 400."""
+    payload = {
+        "image_base64": "data:image/svg+xml;utf8,<svg width='10' height='10'></svg>",
+        "chapter_id": "test_resilience",
+        "panel_index": 0,
+    }
+    resp = client.post("/api/translate", json=payload)
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data["bubbles"] == []
+    assert "warning" in data or "message" in data
+
+
+def test_tiny_spacer_image_skipped_gracefully(client: FlaskClient):
+    """A tiny 1x1 or 10x10 placeholder image should return 200 with empty bubbles."""
+    import cv2
+    import numpy as np
+
+    tiny_img = np.ones((10, 10, 3), dtype=np.uint8) * 255
+    _, buf = cv2.imencode(".jpg", tiny_img)
+    tiny_b64 = f"data:image/jpeg;base64,{base64.b64encode(buf).decode('utf-8')}"
+
+    payload = {
+        "image_base64": tiny_b64,
+        "chapter_id": "test_resilience",
+        "panel_index": 1,
+    }
+    resp = client.post("/api/translate", json=payload)
+    assert resp.status_code == 200
+    data = resp.get_json()
+    assert data["bubbles"] == []
+    assert data["message"] == "Icon or spacer panel skipped"

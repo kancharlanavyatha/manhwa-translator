@@ -171,6 +171,14 @@ async function handleFetchImageAsBase64(url) {
     throw new Error("Missing image URL");
   }
 
+  url = url.trim();
+  if (url.startsWith("data:")) {
+    return url;
+  }
+  if (url.startsWith("//")) {
+    url = "https:" + url;
+  }
+
   const fetchOptions = {
     headers: {
       Accept: "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",

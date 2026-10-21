@@ -9,6 +9,7 @@ Built with Flask and Flask-CORS for zero native DLL dependencies and rock-solid 
 import asyncio
 import base64
 import logging
+import re
 import time
 from typing import Dict, List, Optional, Tuple
 import cv2
@@ -55,28 +56,14 @@ typesetter = Typesetter(
 )
 
 
-def decode_image_base64(data_str: str) -> Tuple[np.ndarray, bytes]:
-    """Decode a base64 string (with or without data URI prefix) into a BGR numpy array."""
-    if not data_str:
-        raise ValueError("Empty image data provided.")
-
-    if "," in data_str:
-        # Strip data:image/...;base64, prefix
-        data_str = data_str.split(",", 1)[1]
-
-    raw_bytes = base64.b64decode(data_str)
-    np_arr = np.frombuffer(raw_bytes, np.uint8)
-    image = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-
-    if image is None:
-        raise ValueError("Failed to decode image from base64 string.")
-
-    return image, raw_bytes
-
-
 def fetch_image_from_url(url: str) -> Tuple[np.ndarray, bytes]:
     """Fetch image bytes directly with appropriate Referer header and decode to BGR numpy array."""
     import urllib.request
+
+    url = url.strip()
+    if url.startswith("//"):
+        url = "https:" + url
+
     headers = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
     }
@@ -93,6 +80,44 @@ def fetch_image_from_url(url: str) -> Tuple[np.ndarray, bytes]:
     image = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
     if image is None:
         raise ValueError(f"Failed to decode image downloaded from {url}")
+
+    return image, raw_bytes
+
+
+def decode_image_base64(data_str: str) -> Tuple[np.ndarray, bytes]:
+    """Decode a base64 string (with or without data URI prefix) into a BGR numpy array."""
+    if not data_str or not isinstance(data_str, str):
+        raise ValueError("Empty image data provided.")
+
+    data_str = data_str.strip()
+
+    # If it's a URL mistakenly passed in image_base64, handle it directly
+    if data_str.startswith("http://") or data_str.startswith("https://") or data_str.startswith("//"):
+        return fetch_image_from_url(data_str)
+
+    if "," in data_str:
+        header, data_str = data_str.split(",", 1)
+        if "svg" in header.lower():
+            raise ValueError("SVG image placeholders are not supported.")
+
+    # Strip any whitespace/newlines that might have slipped into the base64 payload
+    data_str = re.sub(r"[\s\r\n]+", "", data_str)
+
+    # Pad if necessary
+    missing_padding = len(data_str) % 4
+    if missing_padding:
+        data_str += "=" * (4 - missing_padding)
+
+    try:
+        raw_bytes = base64.b64decode(data_str, validate=False)
+    except Exception as exc:
+        raise ValueError(f"Invalid base64 payload: {exc}")
+
+    np_arr = np.frombuffer(raw_bytes, np.uint8)
+    image = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+
+    if image is None:
+        raise ValueError("Failed to decode image from base64 string.")
 
     return image, raw_bytes
 
@@ -125,7 +150,7 @@ def health_check():
 def translate_panel():
     """
     Full end-to-end translation pipeline:
-    1. Decode base64 image
+    1. Decode base64 image or fetch URL
     2. Check SHA-256 panel cache
     3. Detect bubbles -> OCR Hangul -> Contextual Translation -> Inpaint -> Typeset
     4. Cache and return rendered image & bubble metadata
@@ -145,15 +170,36 @@ def translate_panel():
     custom_glossary = data.get("glossary", {})
 
     try:
-        if image_b64:
+        if image_b64 and (image_b64.startswith("http://") or image_b64.startswith("https://") or image_b64.startswith("//")):
+            image, raw_bytes = fetch_image_from_url(image_b64)
+        elif image_b64:
             image, raw_bytes = decode_image_base64(image_b64)
         elif image_url:
             image, raw_bytes = fetch_image_from_url(image_url)
         else:
             raise ValueError("No image data provided.")
     except Exception as exc:
-        logger.warning("Invalid image upload: %s", exc)
-        return jsonify({"error": f"Invalid image format: {exc}"}), 400
+        logger.warning("Skipping invalid image upload (%s): %s", type(exc).__name__, exc)
+        return jsonify({
+            "translated_image_base64": image_b64 if (image_b64 and image_b64.startswith("data:image")) else None,
+            "bubbles": [],
+            "cached": False,
+            "processing_time_ms": 0,
+            "panel_index": panel_index,
+            "warning": f"Skipped invalid image: {exc}"
+        }), 200
+
+    # Ignore tiny spacer, icon, or tracking images
+    if image.shape[0] < 80 or image.shape[1] < 80:
+        logger.info("Skipping small spacer/icon (%dx%d)", image.shape[1], image.shape[0])
+        return jsonify({
+            "translated_image_base64": image_b64 if (image_b64 and image_b64.startswith("data:image")) else None,
+            "bubbles": [],
+            "cached": False,
+            "processing_time_ms": round((time.perf_counter() - start_time) * 1000.0, 2),
+            "panel_index": panel_index,
+            "message": "Icon or spacer panel skipped"
+        }), 200
 
     # Combine custom glossary with series-stored glossary
     series_glossary = glossary_manager.get_series_glossary(chapter_id)
@@ -207,6 +253,8 @@ def translate_panel():
             bubbles=ocr_results,
             target_lang=target_lang,
             glossary=series_glossary,
+            chapter_id=chapter_id,
+            panel_index=panel_index,
         )
     )
 

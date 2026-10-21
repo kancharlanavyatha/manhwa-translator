@@ -21,6 +21,16 @@ class BoundingBox:
     confidence: float = 1.0
 
     @property
+    def width(self) -> int:
+        """Alias for w."""
+        return self.w
+
+    @property
+    def height(self) -> int:
+        """Alias for h."""
+        return self.h
+
+    @property
     def x2(self) -> int:
         """Right boundary X coordinate."""
         return self.x + self.w

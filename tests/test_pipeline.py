@@ -163,3 +163,88 @@ def test_strip_manager_slicing_and_stitching():
     box2 = BoundingBox(x=105, y=625, w=195, h=95)  # duplicate in slice overlap
     deduped = manager._deduplicate_seam_boxes([box1, box2])
     assert len(deduped) == 1
+
+
+def test_manhwa_entity_normalizer():
+    """Verify name protection and honorific normalization."""
+    from server.pipeline.context import ManhwaEntityNormalizer
+
+    # 1. Test name + ssi preservation
+    text1 = "하늘 씨가 말했잖아..."
+    norm1, rep1 = ManhwaEntityNormalizer.pre_process(text1)
+    assert "Haneul" in norm1
+    assert "하늘" in rep1
+
+    # 2. Test honorifics
+    text2 = "형, 나 먼저 갈게."
+    norm2, _ = ManhwaEntityNormalizer.pre_process(text2)
+    assert "Hyung" in norm2
+
+    # 3. Test post-processing: remove literal Brother
+    post = ManhwaEntityNormalizer.post_process("Brother, I'll go first.", "형, 나 먼저 갈게.")
+    assert post.startswith("Hyung")
+
+
+def test_discourse_packer():
+    """Verify split speech bubble packaging and clause alignment."""
+    from server.pipeline.context import DiscoursePacker
+
+    box1 = BoundingBox(x=100, y=100, w=200, h=80)
+    box2 = BoundingBox(x=100, y=190, w=200, h=80)
+
+    # 1. Open ellipsis should merge with adjacent bubble
+    assert DiscoursePacker.should_merge(box1, "그 녀석은...", box2, "절대로 이길 수 없어.") is True
+
+    # 2. Complete terminal sentence should NOT merge
+    assert DiscoursePacker.should_merge(box1, "내가 이겼다!", box2, "절대로 이길 수 없어.") is False
+
+    # 3. Clause split
+    unified = "He is definitely strong, but we can still defeat him."
+    parts = DiscoursePacker.split_english_across_bubbles(unified, ["그 녀석은...", "절대로 이길 수 없어."])
+    assert len(parts) == 2
+    assert parts[0].endswith("...")
+    assert parts[1].startswith("...")
+
+
+def test_chapter_context_memory():
+    """Verify rolling chapter dialogue buffer records and retrieves narrative history."""
+    from server.pipeline.context import ChapterContextBuffer
+
+    ctx = ChapterContextBuffer(max_history=4)
+    ch_id = "test_episode_42"
+
+    ctx.add_turn(ch_id, "이 탑을 클리어한 자가 있어?", "Has anyone cleared this tower?", panel_index=0)
+    ctx.add_turn(ch_id, "아니, 아무도 없어.", "No, no one.", panel_index=1)
+
+    turns = ctx.get_recent_context(ch_id, limit=2)
+    assert len(turns) == 2
+    assert turns[0].korean == "이 탑을 클리어한 자가 있어?"
+    assert turns[1].english == "No, no one."
+
+    # Test clear
+    ctx.clear(ch_id)
+    assert len(ctx.get_recent_context(ch_id)) == 0
+
+
+def test_idiomatic_dialogue_translation():
+    """Verify Korean conversational idioms are normalized and refined into everyday English."""
+    from server.pipeline.context import ManhwaEntityNormalizer
+
+    # 1. Test "눈이 일찍 떠져서" -> waking up early
+    ko_idiom = "응. 눈이 일찍 떠져서."
+    norm_ko, _ = ManhwaEntityNormalizer.pre_process(ko_idiom)
+    assert "일찍 일어나서" in norm_ko
+
+    # 2. Test post-processing catch for literal "eyes are blinking early"
+    raw_literal = "Yes. My eyes are blinking early."
+    refined = ManhwaEntityNormalizer.post_process(raw_literal, ko_idiom)
+    assert "I woke up early" in refined
+
+    # 3. Test "간 떨어질 뻔했잖아" -> scared to death
+    ko_liver = "간 떨어질 뻔했잖아!"
+    norm_liver, _ = ManhwaEntityNormalizer.pre_process(ko_liver)
+    assert "깜짝 놀랐잖아" in norm_liver
+
+    raw_liver = "You almost lost your liver!"
+    refined_liver = ManhwaEntityNormalizer.post_process(raw_liver, ko_liver)
+    assert "scared the life out of me" in refined_liver
