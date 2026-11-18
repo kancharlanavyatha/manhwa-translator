@@ -246,15 +246,14 @@ class HangulOCR(BaseOCR):
     def is_valid_dialogue_text(text: str) -> bool:
         """
         Filter out OCR false positives (isolated single digits, symbols, drawing lines).
-        Dialogue must contain Hangul characters, or at least 2 alphabetic characters.
+        Dialogue must contain Hangul characters (even 1-syllable interjections like 네/응/뭐),
+        or at least 2 alphabetic characters.
         """
         if not text:
             return False
         clean = text.strip()
-        if len(clean) <= 1:
-            return False
         has_hangul = any("\uac00" <= ch <= "\ud7a3" for ch in clean)
-        if has_hangul:
+        if has_hangul and len(clean) >= 1:
             return True
         letters = [c for c in clean if c.isalpha()]
         return len(letters) >= 2

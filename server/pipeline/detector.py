@@ -92,7 +92,7 @@ class HeuristicBubbleDetector(BaseDetector):
         for cnt in contours:
             x, y, w, h = cv2.boundingRect(cnt)
             # Speech bubbles never cover full comic strip frames or exceed panel boundaries
-            if w > width * 0.70 or h > height * 0.35:
+            if w > width * 0.88 or h > height * 0.55:
                 continue
 
             area = cv2.contourArea(cnt)
@@ -120,7 +120,7 @@ class HeuristicBubbleDetector(BaseDetector):
                 and 4 <= stats[i, cv2.CC_STAT_HEIGHT] <= (h * 0.60)
             )
 
-            if std_dev > 5.0 and bright_ratio >= 0.45 and text_strokes >= 4:
+            if std_dev > 4.0 and bright_ratio >= 0.40 and text_strokes >= 1:
                 confidence = min(1.0, 0.6 + (std_dev / 40.0))
                 candidate_boxes.append((x, y, w, h, confidence))
 
@@ -145,7 +145,7 @@ class HeuristicBubbleDetector(BaseDetector):
         for cnt in text_contours:
             x, y, w, h = cv2.boundingRect(cnt)
             # Strictly reject full panel frames and gutter borders
-            if w > width * 0.65 or h > height * 0.30:
+            if w > width * 0.88 or h > height * 0.50:
                 continue
             if x <= 5 and (x + w) >= (width - 5):
                 continue
